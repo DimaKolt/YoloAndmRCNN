@@ -75,41 +75,11 @@ class YOLONet:
             # draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h))
         return results
 
-    def predictAndShow(self):
-        outs = self.net.forward(self.__get_output_layers(self.net))
-
-        class_ids = []
-        confidences = []
-        boxes = []
-        conf_threshold = 0.5
-        nms_threshold = 0.4
-
-        for out in outs:
-            for detection in out:
-                scores = detection[5:]
-                class_id = np.argmax(scores)
-                confidence = scores[class_id]
-                if confidence > 0.5:
-                    center_x = int(detection[0] * self.Width)
-                    center_y = int(detection[1] * self.Height)
-                    w = int(detection[2] * self.Width)
-                    h = int(detection[3] * self.Height)
-                    x = center_x - w / 2
-                    y = center_y - h / 2
-                    class_ids.append(class_id)
-                    confidences.append(float(confidence))
-                    boxes.append([x, y, w, h])
-
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
-
-        for i in indices:
-            i = i[0]
-            box = boxes[i]
-            x = box[0]
-            y = box[1]
-            w = box[2]
-            h = box[3]
-            self.__draw_prediction(self.image, class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h))
+    def show(self):
+        predictions = self.predict()
+        for result in predictions:
+            class_id, confidence, x, y, x_plus_w, y_plus_h = predictions
+            self.__draw_prediction(self.image, class_id, confidence, x, y, x_plus_w, y_plus_h)
 
         cv2.imshow("object detection", self.image)
         cv2.waitKey()
