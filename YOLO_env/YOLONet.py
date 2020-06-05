@@ -6,11 +6,11 @@ class YOLONet:
     def __init__(self):
         self.scale = 0.00392
         self.classes = None
-        with open("./yolov3.txt", 'r') as f:
+        with open("./YOLO_env/yolov3.txt", 'r') as f:
             self.classes = [line.strip() for line in f.readlines()]
 
         self.COLORS = np.random.uniform(0, 255, size=(len(self.classes), 3))
-        self.net = cv2.dnn.readNet("./yolov3.weights", "./yolov3.cfg")
+        self.net = cv2.dnn.readNet("./YOLO_env/yolov3.weights", "./YOLO_env/yolov3.cfg") #TODO fix paths
 
 
     def __get_output_layers(self,net):
@@ -78,11 +78,11 @@ class YOLONet:
     def show(self):
         predictions = self.predict()
         for result in predictions:
-            class_id, confidence, x, y, x_plus_w, y_plus_h = predictions
+            class_id, confidence, x, y, x_plus_w, y_plus_h = result
             self.__draw_prediction(self.image, class_id, confidence, x, y, x_plus_w, y_plus_h)
 
         cv2.imshow("object detection", self.image)
         cv2.waitKey()
 
-        cv2.imwrite("object-detection.jpg", self.image)
+        cv2.imwrite("../images/object-detection.jpg", self.image)
         cv2.destroyAllWindows()

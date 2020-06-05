@@ -18,7 +18,7 @@ from mrcnn import visualize
 # Import COCO config
 # sys.path.append(os.path.join(ROOT_DIR, "samples/coco/"))  # To find local version
 # import coco
-from Mask_RCNN.mRCNN.coco import coco
+from Mask_RCNN_env.mRCNN.coco import coco
 
 # %matplotlib inline
 #
