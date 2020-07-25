@@ -126,10 +126,16 @@ class My_mRCNN():
 
     def predict(self):
         # Run detection
-        return self.model.detect([self.image], verbose=1)
+        temp_ress = self.model.detect([self.image], verbose=1)
+        r = temp_ress[0]
+        r_names = []
+        for class_id in r['class_ids']:
+            r_names.append(self.class_names[class_id])
+        r["class_names"] = r_names
+        return r
 
     def show(self, predicted_result):
         # Visualize results
-        r = predicted_result[0]
-        visualize.display_instances(self.image, r['rois'], r['masks'], r['class_ids'],
-                                    self.class_names, r['scores'])
+        # r = predicted_result[0]
+        visualize.display_instances(self.image, predicted_result['rois'], predicted_result['masks'], predicted_result['class_ids'],
+                                    self.class_names, predicted_result['scores'])

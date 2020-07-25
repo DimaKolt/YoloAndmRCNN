@@ -20,8 +20,8 @@ class YOLONet:
 
         return output_layers
 
-    def __draw_prediction(self,img, class_id, confidence, x, y, x_plus_w, y_plus_h):
-        label = str(self.classes[class_id])
+    def __draw_prediction(self, img, class_str, class_id, confidence, x, y, x_plus_w, y_plus_h):
+        label = class_str
 
         color = self.COLORS[class_id]
 
@@ -71,18 +71,19 @@ class YOLONet:
             y = box[1]
             w = box[2]
             h = box[3]
-            results.append([class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h)])
+            # results.append([class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h)])
+            results.append(
+                [str(self.classes[int(class_ids[i])]), class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h)])
             # draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h))
         return results
 
-    def show(self):
-        predictions = self.predict()
-        for result in predictions:
-            class_id, confidence, x, y, x_plus_w, y_plus_h = result
-            self.__draw_prediction(self.image, class_id, confidence, x, y, x_plus_w, y_plus_h)
+    def show(self, res):
+        for result in res:
+            class_str, class_id, confidence, x, y, x_plus_w, y_plus_h = result
+            self.__draw_prediction(self.image, class_str, class_id, confidence, x, y, x_plus_w, y_plus_h)
 
         cv2.imshow("object detection", self.image)
         cv2.waitKey()
 
         cv2.imwrite("../images/object-detection.jpg", self.image)
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
