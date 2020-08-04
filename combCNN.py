@@ -1,24 +1,30 @@
-import Mask_RCNN_env.mRCNN.MaskRCNNNet as my_rcnn
-import YOLO_env.YOLONet as my_yolo
+import Mask_RCNN_env.mRCNN.MaskRCNNNet as mrcnn
+import YOLO_env.YOLONet as yolo
 import cnn_utils as utils
 
+class CombinedNet:
 
-choosen_pic = "/home/dima/YoloAndmRCNN/images/4410436637_7b0ca36ee7_z.jpg"
+    def __init__(self):
+        self.YOLO_net = yolo.YOLONet()
+        self.MRCNN_net = mrcnn.My_mRCNN()
+        self.YOLO_res = []
+        self.MRCNN_res = []
+        self.image_path = ""
 
-mrcnn_try1 = my_rcnn.My_mRCNN()
-mrcnn_try1.readImage(choosen_pic)
-mrcnn_ress = mrcnn_try1.predict()
+    def readImage(self,path):
+        self.MRCNN_net.readImage(path)
+        self.YOLO_net.readImage(path)
+
+    def predict(self):
+        self.YOLO_res = self.YOLO_net.predict()
+        self.MRCNN_res = self.MRCNN_net.predict()
+
+    def filterByIOU(self,IOU_bar):
+        my_predicts = utils.ResultFilter(self.YOLO_res, self.MRCNN_res)
+        return my_predicts.filter_IOU_and_score(IOU_bar)
+
+    def show(self, predictions):
+        self.YOLO_net.show(predictions)
+        # mrcnn_try1.show(mrcnn_ress) #TODO non blocking pic
 
 
-yolo_try1 = my_yolo.YOLONet()
-yolo_try1.readImage(choosen_pic)
-yolo_ress = yolo_try1.predict()
-
-my_predicts = utils.ResultFilter(yolo_ress, mrcnn_ress)
-filtred_by_iou = my_predicts.filter_IOU_and_score(0.80)
-
-# yolo_try1.show(yolo_ress)
-yolo_try1.show(filtred_by_iou)
-# mrcnn_try1.show(mrcnn_ress) #TODO non blocking pic
-
-coco = 7
