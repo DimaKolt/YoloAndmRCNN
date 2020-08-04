@@ -27,6 +27,4 @@ class CombinedNet:
         self.YOLO_net.show(predictions)
         # mrcnn_try1.show(mrcnn_ress) #TODO non blocking pic
 
-    def calculateMAP(self,predictions):
-        # TODO
 
