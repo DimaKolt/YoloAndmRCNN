@@ -7,3 +7,5 @@ lib64
 pyvenv.cfg
 Mask_RCNN_env/mask_rcnn_coco.h5
 YOLO_env/yolov3.weights
+annonations_json/instances_train2014.json annonations_json/instances_val2014.json
+annonations_json
