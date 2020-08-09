@@ -73,7 +73,7 @@ class YOLONet:
             h = box[3]
             # results.append([class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h)])
             results.append(
-                [str(self.classes[int(class_ids[i])]), class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h)])
+                [str(self.classes[int(class_ids[i])]), confidences[i], round(x), round(y), round(x + w), round(y + h)])
             # draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x + w), round(y + h))
         return results
 

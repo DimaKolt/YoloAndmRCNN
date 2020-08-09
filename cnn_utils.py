@@ -38,7 +38,7 @@ class ResultFilter:
         ress = []
         for i in range(len(rois)):
             ress.append(  # TODO class ids -1
-                [class_names[i], class_ids[i], scores[i], round(rois[i][1]), round(rois[i][0]), round(rois[i][3]),
+                [class_names[i], scores[i], round(rois[i][1]), round(rois[i][0]), round(rois[i][3]),
                  round(rois[i][2])])
         return ress
 
@@ -49,11 +49,11 @@ class ResultFilter:
 
         for obj_yolo in self.yolo_pred:
             for obj_mr in self.mrcnn_pred:
-                box_yolo = [obj_yolo[3], obj_yolo[4], obj_yolo[5], obj_yolo[6]]
-                box_mr = [obj_mr[3], obj_mr[4], obj_mr[5], obj_mr[6]]
+                box_yolo = [obj_yolo[2], obj_yolo[3], obj_yolo[4], obj_yolo[5]]
+                box_mr = [obj_mr[2], obj_mr[3], obj_mr[4], obj_mr[5]]
                 iou = bb_intersection_over_union(box_yolo, box_mr)
                 if iou >= iou_bar:
-                    if obj_yolo[2] >= obj_mr[2]:
+                    if obj_yolo[1] >= obj_mr[1]:
                         mr_pred_temp.remove(obj_mr)
                     else:
                         yolo_pred_temp.remove(obj_yolo)
@@ -61,7 +61,11 @@ class ResultFilter:
 
         return yolo_pred_temp + mr_pred_temp
 
-
+def savePredictionsToFile(path, predictions):
+    with open(path, 'w+') as filehandle:
+        for line in predictions:
+            filehandle.write(' '.join([str(x) for x in line]))
+            filehandle.write('\n')
 
 
 
