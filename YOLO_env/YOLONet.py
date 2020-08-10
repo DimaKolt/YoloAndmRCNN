@@ -11,6 +11,7 @@ class YOLONet:
 
         self.COLORS = np.random.uniform(0, 255, size=(len(self.classes), 3))
         self.net = cv2.dnn.readNet("./YOLO_env/yolov3.weights", "./YOLO_env/yolov3.cfg") #TODO fix paths
+        self.dictionary = dict(zip(self.classes, self.COLORS))
 
 
     def __get_output_layers(self,net):
@@ -20,10 +21,10 @@ class YOLONet:
 
         return output_layers
 
-    def __draw_prediction(self, img, class_str, class_id, confidence, x, y, x_plus_w, y_plus_h):
+    def __draw_prediction(self, img, class_str, confidence, x, y, x_plus_w, y_plus_h):
         label = class_str
 
-        color = self.COLORS[class_id]
+        color = self.dictionary[label]
 
         cv2.rectangle(img, (x, y), (x_plus_w, y_plus_h), color, 2)
 
@@ -79,11 +80,11 @@ class YOLONet:
 
     def show(self, res):
         for result in res:
-            class_str, class_id, confidence, x, y, x_plus_w, y_plus_h = result
-            self.__draw_prediction(self.image, class_str, class_id, confidence, x, y, x_plus_w, y_plus_h)
+            class_str, confidence, x, y, x_plus_w, y_plus_h = result
+            self.__draw_prediction(self.image, class_str, confidence, x, y, x_plus_w, y_plus_h)
 
         cv2.imshow("object detection", self.image)
         cv2.waitKey()
 
         cv2.imwrite("../images/object-detection.jpg", self.image)
-        # cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
