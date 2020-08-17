@@ -19,9 +19,19 @@ class CombinedNet:
         self.YOLO_res = self.YOLO_net.predict()
         self.MRCNN_res = self.MRCNN_net.predict()
 
-    def filterByIOU(self,IOU_bar):
+    def getYoloRes(self):
+        return self.YOLO_res
+
+    def getMrcnnRess(self):
+        return utils.convert_to_yolo_pred(self.MRCNN_res)
+
+    def filterByHighestScoreTakeAll(self, IOU_bar):
         my_predicts = utils.ResultFilter(self.YOLO_res, self.MRCNN_res)
         return my_predicts.filter_IOU_and_score(IOU_bar)
+
+    def filterByHighestScoreTakeWithConf(self, IOU_bar, confd_bar):
+        my_predicts = utils.ResultFilter(self.YOLO_res, self.MRCNN_res)
+        return my_predicts.filter_IOU_and_score_and_conf(IOU_bar, confd_bar)
 
     def show(self, predictions):
         self.YOLO_net.show(predictions)
