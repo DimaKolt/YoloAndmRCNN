@@ -24,7 +24,6 @@ class MAPCalculator:
             for i in cat_list:
                 if i['id']==category_id:
                     cat_name = i['name']
-                    cat_name.replace(" ", "_")
                     break
             bbox = ann['bbox']
             x = bbox[0]

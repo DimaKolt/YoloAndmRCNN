@@ -34,7 +34,7 @@ def convert_to_yolo_pred(mrcnn_pred):
     for i in range(len(rois)):
         ress.append(  # TODO class ids -1
             [class_names[i], scores[i], round(rois[i][1]), round(rois[i][0]), round(rois[i][3]),
-             round(rois[i][2])])
+             round(rois[i][2]), "MRCNN"])
     return ress
 
 class ResultFilter:
@@ -53,9 +53,9 @@ class ResultFilter:
                 box_mr = [obj_mr[2], obj_mr[3], obj_mr[4], obj_mr[5]]
                 iou = bb_intersection_over_union(box_yolo, box_mr)
                 if iou >= iou_bar:
-                    if obj_yolo[1] >= obj_mr[1]:
+                    if obj_yolo[1] >= obj_mr[1] and obj_mr in mr_pred_temp:
                         mr_pred_temp.remove(obj_mr)
-                    else:
+                    elif obj_yolo in yolo_pred_temp:
                         yolo_pred_temp.remove(obj_yolo)
                     break
         return yolo_pred_temp + mr_pred_temp
@@ -87,6 +87,10 @@ def savePredictionsToFile(path, file_name, predictions):
         os.makedirs(path)
     with open(os.path.join(path, file_name), 'w+') as filehandle:
         for line in predictions:
+            x = line[0]
+            if len((x.split())) > 1:
+                line[0] = line[0].replace(" ", "_")
+                line[0] = line[0].lower();
             filehandle.write(' '.join([str(x) for x in line]))
             filehandle.write('\n')
 
