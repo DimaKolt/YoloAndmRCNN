@@ -25,6 +25,7 @@ def bb_intersection_over_union(boxA, boxB):
     # return the intersection over union value
     return iou
 
+
 def convert_to_yolo_pred(mrcnn_pred):
     rois = mrcnn_pred['rois']
     class_ids = mrcnn_pred['class_ids']
@@ -37,11 +38,11 @@ def convert_to_yolo_pred(mrcnn_pred):
              round(rois[i][2]), "MRCNN"])
     return ress
 
+
 class ResultFilter:
     def __init__(self, yolo_pred, mrcnn_pred):
         self.yolo_pred = yolo_pred.copy()
         self.mrcnn_pred = convert_to_yolo_pred(mrcnn_pred)
-
 
     def filter_IOU_and_score(self, iou_bar):
         yolo_pred_temp = self.yolo_pred.copy()
@@ -82,6 +83,88 @@ class ResultFilter:
                 merged_arr_cpy.remove(obj)
         return merged_arr_cpy
 
+
+def div2sets(yolo_result_path, mrcnn_result_path):
+    with open(yolo_result_path, 'r') as f:
+        yolo_pred = f.readlines()
+
+    with open(mrcnn_result_path, 'r') as f:
+        mrcnn_pred = f.readlines()
+
+    yolo_pred_temp = yolo_pred.copy()
+    mr_pred_temp = mrcnn_pred.copy()
+
+    pairs_list = []
+    pairs_box_list = []
+    for obj_yolo in yolo_pred:
+        for obj_mr in mrcnn_pred:
+            obj_yolo_splited = obj_yolo.split()
+            obj_mr_splited = obj_mr.split()
+            box_yolo = [int(obj_yolo_splited[2]), int(obj_yolo_splited[3]), int(obj_yolo_splited[4]),
+                        int(obj_yolo_splited[5])]
+            box_mr = [int(obj_mr_splited[2]), int(obj_mr_splited[3]), int(obj_mr_splited[4]), int(obj_mr_splited[5])]
+            iou = bb_intersection_over_union(box_yolo, box_mr)
+            if iou >= 0.5:
+                pairs_list.append([pair_obj_conv(obj_yolo_splited), pair_obj_conv(obj_mr_splited)])
+                pairs_box_list.append([[obj_yolo_splited[0]] + box_yolo, [obj_mr_splited[0]] + box_mr])
+                if obj_mr in mr_pred_temp:
+                    mr_pred_temp.remove(obj_mr)
+                if obj_yolo in yolo_pred_temp:
+                    yolo_pred_temp.remove(obj_yolo)
+
+    solo_list = yolo_pred_temp + mr_pred_temp
+    solo_box_list = []
+    for solo_obj in solo_list:
+        solo_obj = solo_obj.split()
+        solo_box_list.append([solo_obj[0], int(solo_obj[2]), int(solo_obj[3]), int(solo_obj[4]),
+                              int(solo_obj[5])])
+    solo_list_converted = list(map(solo_obj_conv, solo_list))
+    return pairs_list, pairs_box_list, solo_list_converted, solo_box_list
+
+
+def pair_obj_conv(obj):
+    return [obj[0], float(obj[1]), int(obj[4]) - int(obj[2]), int(obj[5]) - int(obj[3])]
+
+
+def solo_obj_conv(obj):
+    obj = obj.split()
+    return [obj[0], float(obj[1]), int(obj[4]) - int(obj[2]), int(obj[5]) - int(obj[3]),
+            algorithemStringToNumber(obj[6])]
+
+
+def algorithemStringToNumber(name):
+    if name == 'MRCNN':
+        return 1
+    else:
+        return 0
+
+
+def chooseAlgoUsingIOU(yolo_box, mrcnn_box, ground_truth):
+    max_yolo_alg_0 = 0
+    max_mrcnn_alg_1 = 0
+    for pred in ground_truth:
+        pred_box = [int(pred[1]), int(pred[2]), int(pred[3]),
+                        int(pred[4])]
+        temp_alg0 = bb_intersection_over_union(yolo_box[1:], pred_box)
+        temp_alg1 = bb_intersection_over_union(mrcnn_box[1:], pred_box)
+        if (temp_alg0 > max_yolo_alg_0) and yolo_box[0] == pred[0]:
+            max_yolo_alg_0 = temp_alg0
+        if (temp_alg1 > max_mrcnn_alg_1) and mrcnn_box[0] == pred[0]:
+            max_mrcnn_alg_1 = temp_alg1
+
+    if (max_yolo_alg_0 >= max_mrcnn_alg_1):
+        return 0
+    else:
+        return 1
+
+def checkIfPredictionIsRight(pred_box, ground_truth):
+    for real_pred in ground_truth:
+        if(pred_box[0] == real_pred[0]) :
+            iou = bb_intersection_over_union(pred_box[1:], real_pred[1:])
+            if(iou>= 0.5) :
+                return 1
+    return 0
+
 def savePredictionsToFile(path, file_name, predictions):
     if not os.path.exists(path):
         os.makedirs(path)
@@ -93,9 +176,3 @@ def savePredictionsToFile(path, file_name, predictions):
                 line[0] = line[0].lower();
             filehandle.write(' '.join([str(x) for x in line]))
             filehandle.write('\n')
-
-
-
-
-
-

@@ -3,11 +3,15 @@ import subprocess
 from combCNN import CombinedNet as my_net
 from MAPCalculator import MAPCalculator
 import cnn_utils
+from cnn_utils import div2sets
 
 import os
+
 pics_path = "/home/dima/Downloads/train2014/"
 ground_truth_path = "/home/dima/YoloAndmRCNN/groundtruth/"
 prediction_path = "/home/dima/YoloAndmRCNN/prediction/"
+yolo_results_path = "/home/dima/YoloAndmRCNN/prediction/res_yolo_only"
+mrcnn_results_path = "/home/dima/YoloAndmRCNN/prediction/res_mrnn_only"
 # folder = "filterByHighestScoreTakeAll_iou70/"
 # chosen_pic = "COCO_train2014_000000581921.jpg"
 
@@ -16,7 +20,7 @@ calc = MAPCalculator()
 combinedNet = my_net()
 result_dict = {}
 for i, chosen_pic in enumerate(os.listdir(pics_path)):
-    if i == 1000: #354
+    if i == 0:  # 354
         break
 
     print("start pic %s " % chosen_pic + " i= " + str(i))
@@ -24,10 +28,8 @@ for i, chosen_pic in enumerate(os.listdir(pics_path)):
     if os.path.exists(os.path.join(ground_truth_path, str(calc.imageNameToId(chosen_pic)) + '.txt')):
         continue
 
-
     real_box = calc.getGroundTruth(chosen_pic)
     cnn_utils.savePredictionsToFile(ground_truth_path, str(calc.imageNameToId(chosen_pic)) + '.txt', real_box)
-
 
     combinedNet.readImage(pics_path + chosen_pic)
     try:
@@ -50,18 +52,19 @@ for i, chosen_pic in enumerate(os.listdir(pics_path)):
     for kye, ress in result_dict.items():
         cnn_utils.savePredictionsToFile(prediction_path + str(kye), str(calc.imageNameToId(chosen_pic)) + '.txt',
                                         ress)
+
     # combinedNet.show(res)
     print("finished pic %s" % chosen_pic)
 
 coco = 7
 
+
+
 map_output_path = "/home/dima/YoloAndmRCNN/map_output/map.txt"
-
-
-
 for kye in result_dict:
-    cmd = 'python /home/dima/mAP/main.py -np -q --ground_true_path ' + ground_truth_path + ' --predict_path ' + prediction_path + str(kye)
-
+    cmd = 'python /home/dima/mAP/main.py -np -q --ground_true_path ' + ground_truth_path + ' --predict_path ' + prediction_path + str(
+        kye)
+    # TODO convert map to class or copy to our env.
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, shell=True)
     # koko = proc.communicate()[0]
@@ -69,4 +72,3 @@ for kye in result_dict:
         filehandle.write("map of: " + str(kye) + " is:\n" + str(proc.communicate()[0]) + " \n\n")
 
 coco = 1
-

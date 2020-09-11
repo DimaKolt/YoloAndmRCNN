@@ -33,6 +33,10 @@ class CombinedNet:
         my_predicts = utils.ResultFilter(self.YOLO_res, self.MRCNN_res)
         return my_predicts.filter_IOU_and_score_and_conf(IOU_bar, confd_bar)
 
+    # def div2pairs(self):
+    #     my_predicts = utils.ResultFilter(self.YOLO_res, self.MRCNN_res)
+    #     return my_predicts.div2sets()
+
     def show(self, predictions):
         self.YOLO_net.show(predictions)
         # mrcnn_try1.show(mrcnn_ress) #TODO non blocking pic
