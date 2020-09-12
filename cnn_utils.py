@@ -1,5 +1,33 @@
 import os
 
+class class_names:
+    def __init__(self):
+        self.names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
+                               'bus', 'train', 'truck', 'boat', 'traffic light',
+                               'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird',
+                               'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear',
+                               'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie',
+                               'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
+                               'kite', 'baseball bat', 'baseball glove', 'skateboard',
+                               'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup',
+                               'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
+                               'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
+                               'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed',
+                               'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote',
+                               'keyboard', 'cell phone', 'microwave', 'oven', 'toaster',
+                               'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors',
+                               'teddy bear', 'hair drier', 'toothbrush']
+
+    def str2int(self, str):
+        for i, name in enumerate(self.names):
+            name = conv2one_name(name)
+            if (name == str):
+                return i
+
+    def int2str(self, int):
+        return conv2one_name(self.names[int])
+
+
 
 def bb_intersection_over_union(boxA, boxB):
     # determine the (x, y)-coordinates of the intersection rectangle
@@ -123,12 +151,12 @@ def div2sets(yolo_result_path, mrcnn_result_path):
 
 
 def pair_obj_conv(obj):
-    return [obj[0], float(obj[1]), int(obj[4]) - int(obj[2]), int(obj[5]) - int(obj[3])]
+    return [class_names().str2int(obj[0]), float(obj[1]), int(obj[4]) - int(obj[2]), int(obj[5]) - int(obj[3])]
 
 
 def solo_obj_conv(obj):
     obj = obj.split()
-    return [obj[0], float(obj[1]), int(obj[4]) - int(obj[2]), int(obj[5]) - int(obj[3]),
+    return [class_names().str2int(obj[0]), float(obj[1]), int(obj[4]) - int(obj[2]), int(obj[5]) - int(obj[3]),
             algorithemStringToNumber(obj[6])]
 
 
@@ -147,9 +175,9 @@ def chooseAlgoUsingIOU(yolo_box, mrcnn_box, ground_truth):
                         int(pred[4])]
         temp_alg0 = bb_intersection_over_union(yolo_box[1:], pred_box)
         temp_alg1 = bb_intersection_over_union(mrcnn_box[1:], pred_box)
-        if (temp_alg0 > max_yolo_alg_0) and yolo_box[0] == pred[0]:
+        if (temp_alg0 > max_yolo_alg_0) and class_names().str2int(yolo_box[0]) == class_names().str2int(pred[0]):
             max_yolo_alg_0 = temp_alg0
-        if (temp_alg1 > max_mrcnn_alg_1) and mrcnn_box[0] == pred[0]:
+        if (temp_alg1 > max_mrcnn_alg_1) and class_names().str2int(mrcnn_box[0]) == class_names().str2int(pred[0]):
             max_mrcnn_alg_1 = temp_alg1
 
     if (max_yolo_alg_0 >= max_mrcnn_alg_1):
@@ -159,7 +187,7 @@ def chooseAlgoUsingIOU(yolo_box, mrcnn_box, ground_truth):
 
 def checkIfPredictionIsRight(pred_box, ground_truth):
     for real_pred in ground_truth:
-        if(pred_box[0] == real_pred[0]) :
+        if(class_names().str2int(pred_box[0]) == class_names().str2int(real_pred[0])) :
             iou = bb_intersection_over_union(pred_box[1:], real_pred[1:])
             if(iou>= 0.5) :
                 return 1
@@ -173,6 +201,12 @@ def savePredictionsToFile(path, file_name, predictions):
             x = line[0]
             if len((x.split())) > 1:
                 line[0] = line[0].replace(" ", "_")
-                line[0] = line[0].lower();
+                line[0] = line[0].lower()
             filehandle.write(' '.join([str(x) for x in line]))
             filehandle.write('\n')
+
+def conv2one_name(name):
+    if len((name.split())) > 1:
+        name = name.replace(" ", "_")
+        name = name.lower()
+    return name

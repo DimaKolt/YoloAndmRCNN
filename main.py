@@ -6,21 +6,13 @@ import cnn_utils
 from cnn_utils import div2sets
 
 import os
-
-pics_path = "/home/dima/Downloads/train2014/"
-ground_truth_path = "/home/dima/YoloAndmRCNN/groundtruth/"
-prediction_path = "/home/dima/YoloAndmRCNN/prediction/"
-yolo_results_path = "/home/dima/YoloAndmRCNN/prediction/res_yolo_only"
-mrcnn_results_path = "/home/dima/YoloAndmRCNN/prediction/res_mrnn_only"
-# folder = "filterByHighestScoreTakeAll_iou70/"
-# chosen_pic = "COCO_train2014_000000581921.jpg"
-
+from our_paths import *
 
 calc = MAPCalculator()
 combinedNet = my_net()
 result_dict = {}
 for i, chosen_pic in enumerate(os.listdir(pics_path)):
-    if i == 0:  # 354
+    if i==6000:
         break
 
     print("start pic %s " % chosen_pic + " i= " + str(i))
