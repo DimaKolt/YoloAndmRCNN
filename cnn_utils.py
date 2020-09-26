@@ -1,4 +1,6 @@
 import os
+import subprocess
+from our_paths import *
 
 class class_names:
     def __init__(self):
@@ -210,3 +212,12 @@ def conv2one_name(name):
         name = name.replace(" ", "_")
         name = name.lower()
     return name
+
+def calculate_map(pred_path):
+    cmd = 'python ' + calc_map_script_path + ' -np -q --ground_true_path ' + ground_truth_test_path + ' --predict_path ' + pred_path
+    # TODO convert map to class or copy to our env.
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, shell=True)
+    # koko = proc.communicate()[0]
+    with open(map_output_path, 'a+') as filehandle:
+        filehandle.write("map of: " + pred_path + " is:\n" + str(proc.communicate()[0]) + " \n\n")
