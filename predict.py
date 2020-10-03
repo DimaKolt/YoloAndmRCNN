@@ -7,6 +7,8 @@ from our_paths import *
 import os
 from cnn_utils import div2sets, savePredictionsToFile, checkIfPredictionIsRight
 
+from ResNet50 import MyResNet50
+
 # filename = 'tree_pairs_pkl'
 
 with open(filename_pairs, 'rb') as file:
@@ -22,7 +24,12 @@ with open(filename_solo, 'rb') as file:
 with open(filename_solo_net, 'rb') as file:
     net_solo = pickle.load(file)
 
+res_net50 = MyResNet50()
+
 for i, chosen_pic in enumerate(os.listdir(yolo_test_set_path)):
+    if os.path.exists(os.path.join(result_decision_trees_and_resnet_path, chosen_pic)):
+        continue
+
     pair_list, pair_boxes, solo_list, solo_boxes = div2sets(os.path.join(yolo_test_set_path, chosen_pic),
                                                             os.path.join(mrcnn_test_set_path, chosen_pic))
     list_of_pair_objects = []
@@ -45,6 +52,7 @@ for i, chosen_pic in enumerate(os.listdir(yolo_test_set_path)):
                  pair_boxes[obj_i][res][3], pair_boxes[obj_i][res][4]])
 
     obj_list_net = obj_list.copy()
+    obj_list_resnet50 = obj_list.copy()
 
     if len(list_of_solo_objects) is not 0:
         solo_result_per_pic = tree_solo.predict(list_of_solo_objects)
@@ -59,10 +67,20 @@ for i, chosen_pic in enumerate(os.listdir(yolo_test_set_path)):
                     [solo_boxes[obj_i][0], solo_list[obj_i][1], solo_boxes[obj_i][1], solo_boxes[obj_i][2],
                      solo_boxes[obj_i][3], solo_boxes[obj_i][4]])
 
+
     cnn_utils.savePredictionsToFile(result_decision_trees_path, chosen_pic, obj_list)
 
     cnn_utils.savePredictionsToFile(result_decision_trees_and_net_path, chosen_pic, obj_list_net)
 
     coco = 9
+
+
+
+    for obj_i, box in enumerate(solo_boxes):
+        if res_net50.predict(box, pics_path +'COCO_train2014_' + '{0:012d}'.format(int(chosen_pic[0:-4])) + '.jpg'):
+            obj_list_resnet50.append([box[0], solo_list[obj_i][1], box[1], box[2],
+                     box[3], box[4]])
+
+    cnn_utils.savePredictionsToFile(result_decision_trees_and_resnet_path, chosen_pic, obj_list_resnet50)
 
 coco = 0

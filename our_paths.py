@@ -22,6 +22,7 @@ mrcnn_test_set_path = "prediction/test_set/res_mrnn_only"
 
 result_decision_trees_path = "prediction/test_set/result_decision_trees"
 result_decision_trees_and_net_path = "prediction/test_set/result_decision_trees_and_net"
+result_decision_trees_and_resnet_path = "prediction/test_set/result_decision_trees_and_resnet"
 
 calc_map_script_path = "calc_map.py"
-map_output_path = "/home/dima/YoloAndmRCNN/map_output/map.txt"
+map_output_path = "map_output/map.txt"
