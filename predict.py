@@ -2,6 +2,8 @@ import pickle
 from sklearn import tree
 import graphviz
 
+from combCNN import CombinedNet as my_net
+
 import cnn_utils
 from our_paths import *
 import os
@@ -25,10 +27,12 @@ with open(filename_solo_net, 'rb') as file:
     net_solo = pickle.load(file)
 
 res_net50 = MyResNet50()
+combinedNet = my_net()
 
 for i, chosen_pic in enumerate(os.listdir(yolo_test_set_path)):
     if os.path.exists(os.path.join(result_decision_trees_and_resnet_path, chosen_pic)):
         continue
+
 
     pair_list, pair_boxes, solo_list, solo_boxes = div2sets(os.path.join(yolo_test_set_path, chosen_pic),
                                                             os.path.join(mrcnn_test_set_path, chosen_pic))
@@ -67,11 +71,14 @@ for i, chosen_pic in enumerate(os.listdir(yolo_test_set_path)):
                     [solo_boxes[obj_i][0], solo_list[obj_i][1], solo_boxes[obj_i][1], solo_boxes[obj_i][2],
                      solo_boxes[obj_i][3], solo_boxes[obj_i][4]])
 
+    combinedNet.readImage('/home/dima/YoloAndmRCNN/images/' + 'snowboard.jpg')
 
     cnn_utils.savePredictionsToFile(result_decision_trees_path, chosen_pic, obj_list)
+    combinedNet.show(obj_list)
+
 
     cnn_utils.savePredictionsToFile(result_decision_trees_and_net_path, chosen_pic, obj_list_net)
-
+    combinedNet.show(obj_list_net)
     coco = 9
 
 
@@ -82,5 +89,5 @@ for i, chosen_pic in enumerate(os.listdir(yolo_test_set_path)):
                      box[3], box[4]])
 
     cnn_utils.savePredictionsToFile(result_decision_trees_and_resnet_path, chosen_pic, obj_list_resnet50)
-
+    combinedNet.show(obj_list_resnet50)
 coco = 0

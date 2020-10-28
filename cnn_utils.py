@@ -221,3 +221,15 @@ def calculate_map(pred_path):
     # koko = proc.communicate()[0]
     with open(map_output_path, 'a+') as filehandle:
         filehandle.write("map of: " + pred_path + " is:\n" + str(proc.communicate()[0]) + " \n\n")
+
+def show( res):
+    for result in res:
+        class_str, confidence, x, y, x_plus_w, y_plus_h, alg = result
+        self.__draw_prediction(self.image, class_str, confidence, x, y, x_plus_w , y_plus_h, alg)
+
+    # cv2.imshow("object detection", self.image)
+    # cv2.waitKey()
+
+    cv2.imwrite("temp.jpg", self.image)
+    self.image = cv2.imread(self.image_path)
+    # cv2.destroyAllWindows()

@@ -21,16 +21,17 @@ class YOLONet:
 
         return output_layers
 
-    def __draw_prediction(self, img, class_str, confidence, x, y, x_plus_w, y_plus_h):
+    def __draw_prediction(self, img, class_str, confidence, x, y, x_plus_w, y_plus_h, alg=''):
         label = class_str
 
         color = self.dictionary[label]
 
         cv2.rectangle(img, (x, y), (x_plus_w, y_plus_h), color, 2)
 
-        cv2.putText(img, label, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.putText(img, label +' '+ alg, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
     def readImage(self,image_path):
+        self.image_path = image_path;
         self.image = cv2.imread(image_path)
         self.Width = self.image.shape[1]
         self.Height = self.image.shape[0]
@@ -80,11 +81,14 @@ class YOLONet:
 
     def show(self, res):
         for result in res:
+            # class_str, confidence, x, y, x_plus_w, y_plus_h, alg = result
             class_str, confidence, x, y, x_plus_w, y_plus_h = result
+            # self.__draw_prediction(self.image, class_str, confidence, x, y, x_plus_w , y_plus_h, alg)
             self.__draw_prediction(self.image, class_str, confidence, x, y, x_plus_w, y_plus_h)
 
-        cv2.imshow("object detection", self.image)
-        cv2.waitKey()
+        # cv2.imshow("object detection", self.image)
+        # cv2.waitKey()
 
-        cv2.imwrite("../images/object-detection.jpg", self.image)
-        cv2.destroyAllWindows()
+        cv2.imwrite("temp.jpg", self.image)
+        self.image = cv2.imread(self.image_path)
+        # cv2.destroyAllWindows()

@@ -11,3 +11,4 @@ annonations_json/instances_train2014.json annonations_json/instances_val2014.jso
 annonations_json
 giter.exe
 *.txt
+*.jpg
